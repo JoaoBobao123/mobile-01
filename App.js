@@ -1,52 +1,144 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { TaskCard } from './TaskCard';
+import { useState } from 'react';
+import { ScrollView } from 'react-native';
 
 export default function App() {
-  function onMessage() {
-    alert("Hello World");
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescripition, setTaskDescripition] = useState("");
+  const [task, setTask] = useState([]);
+  const [alert1, setAlert1] = useState(false);
+  const [alert2, setAlert2] = useState(false);
+
+
+  const onMessage = () => {
+    setAlert1(false);
+    setAlert2(false);
+
+    if (taskTitle !== "" && taskDescripition.length >= 10) {
+      setTask([
+        ...task,
+        {
+          id: task.length + 1,
+          title: taskTitle(""),
+          description: taskDescripition("")
+        }
+      ]
+
+      )
+
+
+
+    } else {
+
+      if (taskDescripition.length < 10) {
+
+        setAlert1(true)
+        setAlert2(() => {
+          setAlert1(false);
+        }, 4000);
+
+      }
+
+    }
   }
 
   return (
-    <>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
-      <View style={styles.container}>
-        <Text style={styles.label}>App de Tarefas</Text>
-        <TextInput 
-          style={styles.input}
-          placeholder="Nome da tarefa:"
-        />
+    <View style={styles.buttonContainer}>
 
-        <Text>Tarefa Descrição:</Text>
-        <TextInput 
-          style={[styles.input, styles.textArea]}
-          placeholder='Descrição da tarefa:'
-          multiline
-        />
+      <Text style={styles.label}>App de Tarefas</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome da tarefa:"
+        value={taskTitle}
+        onChangeText={setTaskTitle}
+      />
 
-        <View style={styles.buttonContainer}>
-          <Button style={styles.buttonElement} color="darkgreen" title='Salvar' onPress={() => onMessage()} />
-        </View>
+
+
+      {alert1
+        ?
+        <text style={styles.errorText}>
+          Necessário informar o título
+        </text>
+        : <></>}
+
+
+
+      <Text>Tarefa Descrição:</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        placeholder='Descrição da tarefa:'
+        multiline
+        value={taskDescripition}
+        onChangeText={setTaskDescripition}
+      />
+
+
+
+      {alert2
+        ?
+        <text style={styles.errorText}
+        >Necessário mínimo 10 caracteres
+        </text>
+        : <></>
+      }
+
+
+
+      <View style={styles.buttonContainer}>
+        <Button style={styles.buttonElement}
+          color="darkgreen"
+          title='Salvar'
+          onPress={() =>
+            onMessage()} />
+      </View>
+      {
+        task.length > 0 ? <view style={styles.separetor} />
+          : <></>
+      }
+
+      <ScrollView>
+        {
+          task.map((item, index) => (
+            <TaskCard
+              title={item.title}
+              descripition={item.descripition}
+
+              status={"Done"}
+              onClick={() => {
+                deleteTask(index);
+              }}
+            />
+          ))}
 
         <TaskCard
           title={"Teste"}
           description={"Descrição"}
           status={"Done"}
           onClick={() => {
-            alert("Deletar")
+            deleteTask();
           }}
         />
-      </View>
-    
-    </>
+      </ScrollView>
+    </View>
 
   );
 }
 
+const deleteTask = (index) => {
+  const updateTask = [...task];
+  updateTask.splice(index, 1)
+  setTask(updateTask);
+
+}
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 40, 
+    paddingTop: 40,
     paddingHorizontal: 16,
     backgroundColor: '#f4f4f4',
   },
@@ -74,5 +166,17 @@ const styles = StyleSheet.create({
   },
   buttonElement: {
     borderRadius: 12
+  },
+  separetor: {
+    marginTop: 16,
+    width: "100%",
+    height: 1,
+    backgroundColor: "#222"
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    frontStyle: "italic"
   }
+
 });
