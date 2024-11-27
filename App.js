@@ -1,8 +1,7 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, ScrollView } from 'react-native';
 import { TaskCard } from './TaskCard';
-import { useState } from 'react';
-import { ScrollView } from 'react-native';
+import { useEffect, useState } from 'react'; 
+import { getRequest } from './api/Api';
 
 export default function App() {
   const [taskTitle, setTaskTitle] = useState("");
@@ -43,9 +42,29 @@ export default function App() {
 
     }
   }
+  const deleteTask = (index) => {
+    const updateTask = [...task];
+    updateTask.splice(index, 1)
+    setTask(updateTask);
+  
+  };
 
+  useEffect (() => {
+    const fetchData = async () => {
+      try {
+        const resp = await getRequest();
+        setTask(resp)
+      } catch (ex) {
+        console.error(ex)
+
+      }
+    } 
+
+    fetchData()
+  })
+  
   return (
-    <View style={styles.buttonContainer}>
+    <View style={styles.container}>
 
       <Text style={styles.label}>App de Tarefas</Text>
       <TextInput
@@ -75,8 +94,6 @@ export default function App() {
         onChangeText={setTaskDescripition}
       />
 
-
-
       {alert2
         ?
         <text style={styles.errorText}
@@ -85,8 +102,6 @@ export default function App() {
         : <></>
       }
 
-
-
       <View style={styles.buttonContainer}>
         <Button style={styles.buttonElement}
           color="darkgreen"
@@ -94,6 +109,7 @@ export default function App() {
           onPress={() =>
             onMessage()} />
       </View>
+
       {
         task.length > 0 ? <view style={styles.separetor} />
           : <></>
@@ -112,27 +128,12 @@ export default function App() {
               }}
             />
           ))}
-
-        <TaskCard
-          title={"Teste"}
-          description={"Descrição"}
-          status={"Done"}
-          onClick={() => {
-            deleteTask();
-          }}
-        />
       </ScrollView>
     </View>
 
   );
 }
 
-const deleteTask = (index) => {
-  const updateTask = [...task];
-  updateTask.splice(index, 1)
-  setTask(updateTask);
-
-}
 
 
 const styles = StyleSheet.create({
