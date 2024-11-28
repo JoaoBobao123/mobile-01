@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, Button, ScrollView } from 'react-native';
 import { TaskCard } from './TaskCard';
 import { useEffect, useState } from 'react'; 
-import { getRequest } from './api/Api';
+import { getRequest, postRequest, deleteRequest } from './api/Api';
 
 export default function App() {
   const [taskTitle, setTaskTitle] = useState("");
@@ -11,23 +11,13 @@ export default function App() {
   const [alert2, setAlert2] = useState(false);
 
 
-  const onMessage = () => {
+  const onMessage = async () => {
     setAlert1(false);
     setAlert2(false);
 
     if (taskTitle !== "" && taskDescripition.length >= 10) {
-      setTask([
-        ...task,
-        {
-          id: task.length + 1,
-          title: taskTitle(""),
-          description: taskDescripition("")
-        }
-      ]
-
-      )
-
-
+      let newTask = await postRequest(taskTitle, taskDescripition);
+            setTask(newTask);
 
     } else {
 
@@ -42,9 +32,10 @@ export default function App() {
 
     }
   }
-  const deleteTask = (index) => {
+  const deleteTask = (index, id) => {
     const updateTask = [...task];
     updateTask.splice(index, 1)
+    deleteRequest(id)
     setTask(updateTask);
   
   };
@@ -119,12 +110,12 @@ export default function App() {
         {
           task.map((item, index) => (
             <TaskCard
+            key={item.id}
               title={item.title}
               descripition={item.descripition}
-
               status={"Done"}
               onClick={() => {
-                deleteTask(index);
+                deleteTask(index, item.id);
               }}
             />
           ))}
